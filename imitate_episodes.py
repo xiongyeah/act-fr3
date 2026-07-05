@@ -51,8 +51,8 @@ def main(args):
     resume_ckpt_path = args['resume_ckpt_path']
 
     # get task parameters
-    is_sim = task_name[:4] == 'sim_'
-    if is_sim or task_name == 'all':
+    is_fr3 = task_name[:4] == 'fr3_'
+    if is_fr3 or task_name == 'all':
         from constants import SIM_TASK_CONFIGS
         task_config = SIM_TASK_CONFIGS[task_name]
     else:
@@ -68,7 +68,7 @@ def main(args):
     name_filter = task_config.get('name_filter', lambda n: True)
 
     # fixed parameters
-    state_dim = 14
+    state_dim = 8
     lr_backbone = 1e-5
     backbone = 'resnet18'
     if policy_class == 'ACT':
@@ -89,14 +89,14 @@ def main(args):
                          'vq': args['use_vq'],
                          'vq_class': args['vq_class'],
                          'vq_dim': args['vq_dim'],
-                         'action_dim': 16,
+                         'action_dim': 8,
                          'no_encoder': args['no_encoder'],
                          }
     elif policy_class == 'Diffusion':
 
         policy_config = {'lr': args['lr'],
                          'camera_names': camera_names,
-                         'action_dim': 16,
+                         'action_dim': 8,
                          'observation_horizon': 1,
                          'action_horizon': 8,
                          'prediction_horizon': args['chunk_size'],
@@ -135,7 +135,7 @@ def main(args):
         'seed': args['seed'],
         'temporal_agg': args['temporal_agg'],
         'camera_names': camera_names,
-        'real_robot': not is_sim,
+        'real_robot': not is_fr3,
         'load_pretrain': args['load_pretrain'],
         'actuator_config': actuator_config,
     }
@@ -321,11 +321,9 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
             e()
         rollout_id += 0
         ### set task
-        if 'sim_transfer_cube' in task_name:
+        if 'fr3_pick_place' in task_name:
             BOX_POSE[0] = sample_box_pose() # used in sim reset
-        elif 'sim_insertion' in task_name:
-            BOX_POSE[0] = np.concatenate(sample_insertion_pose()) # used in sim reset
-
+        
         ts = env.reset()
 
         ### onscreen render
@@ -336,7 +334,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
 
         ### evaluation loop
         if temporal_agg:
-            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, 16]).cuda()
+            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, 8]).cuda()
 
         # qpos_history = torch.zeros((1, max_timesteps, state_dim)).cuda()
         qpos_history_raw = np.zeros((max_timesteps, state_dim))
@@ -435,7 +433,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
                 time4 = time.time()
                 raw_action = raw_action.squeeze(0).cpu().numpy()
                 action = post_process(raw_action)
-                target_qpos = action[:-2]
+                target_qpos = action
 
                 # if use_actuator_net:
                 #     assert(not temporal_agg)
@@ -447,7 +445,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
                 #         base_action_chunk = actuator_unnorm(pred.detach().cpu().numpy()[0])
                 #     base_action = base_action_chunk[t % prediction_len]
                 # else:
-                base_action = action[-2:]
+                base_action = np.zeros(2)
                 # base_action = calibrate_linear_vel(base_action, c=0.19)
                 # base_action = postprocess_base_action(base_action)
                 # print('post process: ', time.time() - time4)

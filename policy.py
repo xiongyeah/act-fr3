@@ -33,8 +33,8 @@ class DiffusionPolicy(nn.Module):
 
         self.num_kp = 32
         self.feature_dimension = 64
-        self.ac_dim = args_override['action_dim'] # 14 + 2
-        self.obs_dim = self.feature_dimension * len(self.camera_names) + 14 # camera features and proprio
+        self.ac_dim = args_override['action_dim'] # 8 + 2
+        self.obs_dim = self.feature_dimension * len(self.camera_names) + 8 # camera features and proprio
 
         backbones = []
         pools = []
