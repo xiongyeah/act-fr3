@@ -13,3 +13,4 @@ ckpts/
 .DS_Store
 .vscode/
 wandb/
+datasets/
