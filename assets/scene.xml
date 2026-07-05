@@ -18,14 +18,16 @@
         <light castshadow="false" directional='true' diffuse='.3 .3 .3' specular='0.3 0.3 0.3' pos='0 1 1'
                dir='0 -1 -1'/>
 
-        <body name="table" pos="0.5 0 0">  <!-- 修改桌子位置 -->
+        <body name="table" pos="0.3 0 0">  <!-- 修改桌子位置 -->
             <geom group="1" mesh="tabletop" pos="0 0 0" type="mesh" conaffinity="1" contype="1" name="table" rgba="0.2 0.2 0.2 1" />
         </body>
-        <body name="midair" pos="0 .6 0.2">
+        <body name="midair" pos="0.3 0 0.2">
             <site pos="0 0 0" size="0.01" type="sphere" name="midair" rgba="1 0 0 0"/>
         </body>
 
-        <camera name="top" pos="0 0.6 0.8" fovy="78" mode="targetbody" target="table"/>
+        <camera name="left_pillar" pos="-0.5 0.2 0.6" fovy="78" mode="targetbody" target="table"/>
+        <camera name="right_pillar" pos="0.5 0.2 0.6" fovy="78" mode="targetbody" target="table"/>
+        <camera name="top" pos="0.6 0.8 0.6" fovy="78" mode="targetbody" target="table"/>
         <camera name="angle" pos="0 0 0.6" fovy="78" mode="targetbody" target="table"/>
         <!-- 删除多余的相机 -->
     </worldbody>

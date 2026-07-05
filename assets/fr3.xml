@@ -1,4 +1,4 @@
-<mujoco model="fr3">
+<mujocoinclude>
   <compiler angle="radian" meshdir="."/>  <!-- 更改读取的文件路径 -->
 
   <option integrator="implicitfast"/>
@@ -153,7 +153,7 @@
                                   friction="1 0.005 0.0001" contype="1" conaffinity="1"/>
                         </body>
                         <!-- 腕部相机 -->
-                        <camera name="wrist" pos="0.05 0 0.05" fovy="50" mode="fixed" euler="0 0.8 0" />
+                        <camera name="wrist" pos="0.06 0 0.08" fovy="45" mode="fixed" euler="0 0.6 0" />
                     </body>
                   </body>
                 </body>
@@ -165,18 +165,8 @@
     </body>
   </worldbody>
 
-  <actuator>
-    <position class="fr3" name="fr3_joint1" joint="fr3_joint1" kp="4500" kv="450"/>
-    <position class="fr3" name="fr3_joint2" joint="fr3_joint2" kp="4500" kv="450"/>
-    <position class="fr3" name="fr3_joint3" joint="fr3_joint3" kp="3500" kv="350"/>
-    <position class="fr3" name="fr3_joint4" joint="fr3_joint4" kp="3500" kv="350"/>
-    <position class="fr3" name="fr3_joint5" joint="fr3_joint5" kp="2000" kv="200"/>
-    <position class="fr3" name="fr3_joint6" joint="fr3_joint6" kp="2000" kv="200"/>
-    <position class="fr3" name="fr3_joint7" joint="fr3_joint7" kp="2000" kv="200"/>
-  </actuator>
-
   <contact>
     <exclude body1="fr3_link0" body2="fr3_link1"/>
   </contact>
 
-</mujoco>
+</mujocoinclude>

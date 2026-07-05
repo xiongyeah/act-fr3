@@ -8,14 +8,14 @@ SIM_TASK_CONFIGS = {
     'fr3_pick_place_scripted': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_scripted',
         'num_episodes': 50,
-        'episode_len': 400,
+        'episode_len': 800,
         'camera_names': ['top', 'wrist']
     },
 
     'fr3_pick_place_human': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_human',
         'num_episodes': 50,
-        'episode_len': 400,
+        'episode_len': 800,
         'camera_names': ['top']
     },
 
@@ -30,7 +30,7 @@ SIM_TASK_CONFIGS = {
     'fr3_pick_place_scripted_mirror': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_scripted_mirror',
         'num_episodes': None,
-        'episode_len': 400,
+        'episode_len': 800,
         'camera_names': ['top', 'wrist']
     },
 

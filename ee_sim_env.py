@@ -36,7 +36,7 @@ def make_ee_sim_env(task_name):
                         "images": {"main": (480x640x3)}        # h, w, c, dtype='uint8'
     """
     if 'fr3_pick_place' in task_name:
-        xml_path = os.path.join(XML_DIR, f'fr3_ee_pick_cube.xml')
+        xml_path = os.path.join(XML_DIR, f'fr3_ee_scene.xml')
         physics = mujoco.Physics.from_xml_path(xml_path)
         task = PickPlaceEETask(random=False)
         env = control.Environment(physics, task, time_limit=20, control_timestep=DT,
@@ -55,8 +55,22 @@ class FR3EETask(base.Task):
         np.copyto(physics.data.mocap_quat[0], action[3:7])
 
         g_ctrl = PUPPET_GRIPPER_POSITION_UNNORMALIZE_FN(action[7])
-        np.copyto(physics.data.ctrl[:7], physics.data.qpos[:7])   # 关节不抵抗mocap
-        np.copyto(physics.data.ctrl[7:9], [g_ctrl, -g_ctrl])     # 夹爪控制
+        np.copyto(physics.data.ctrl, [g_ctrl, -g_ctrl])   # 关节不抵抗mocap
+
+        # 加这几行
+        # step = int(round(physics.data.time / 0.02))   # time / DT = 实际步数
+        # if step in (0, 200, 600, 800):
+        #     cmd_pos = action[:3]
+        #     actual_pos = physics.data.mocap_pos[0].copy()
+        #     finger_pos = physics.named.data.xpos['fr3_left_finger'].copy()
+        #     box_pos = physics.named.data.xpos['box'].copy()
+        #     link7_pos = physics.named.data.xpos['fr3_link7'].copy()
+        #     print(f"  link7={link7_pos}")
+        #     print(f"t={step}")
+        #     print(f"  cmd_xyz={cmd_pos}")
+        #     print(f"  actual_mocap={actual_pos}")
+        #     print(f"  finger={finger_pos}")
+        #     print(f"  box={box_pos}")
 
     def initialize_robots(self, physics):
         # reset joint position
@@ -67,15 +81,15 @@ class FR3EETask(base.Task):
         # (1) make an ee_sim env and reset to the same start_pose
         # (2) get env._physics.named.data.xpos['fr3_link7']
         #     get env._physics.named.data.xquat['fr3_link7']
-        np.copyto(physics.data.mocap_pos[0], [0.554499, 0.000000, 0.731502])
-        np.copyto(physics.data.mocap_quat[0], [0.000000, 0.923898, 0.382638, 0.000000])
+        np.copyto(physics.data.mocap_pos[0], [0.088, -0.00004, 1.032])
+        np.copyto(physics.data.mocap_quat[0], [0.0134, 0.9992, 0.00005, 0.0388])
 
         # reset gripper control
-        np.copyto(physics.data.ctrl[:7], START_ARM_POSE[:7])  # 关节不抵抗
-        np.copyto(physics.data.ctrl[7:9], [
+        close_gripper_control = np.array([
             PUPPET_GRIPPER_POSITION_CLOSE,
             -PUPPET_GRIPPER_POSITION_CLOSE,
         ])
+        np.copyto(physics.data.ctrl, close_gripper_control)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode."""

@@ -1,0 +1,36 @@
+<mujoco>
+    <include file="scene.xml"/>
+    <include file="fr3.xml"/>
+    <worldbody>
+
+        <body name="box" pos="0.35 0 0.05">
+            <joint name="red_box_joint" type="free" frictionloss="0.01" />
+            <inertial pos="0 0 0" mass="0.05" diaginertia="0.002 0.002 0.002" />
+            <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001" pos="0 0 0" size="0.02 0.02 0.02" type="box" name="red_box" rgba="1 0 0 1" />
+        </body>
+
+    </worldbody>
+
+    <actuator>
+        <!-- FR3 7 joints, kp/kv/forcerange from original fr3.xml -->
+        <position ctrllimited="true" ctrlrange="-2.7437 2.7437" joint="fr3_joint1" kp="4500" kv="450" forcelimited="true" forcerange="-87 87"/>
+        <position ctrllimited="true" ctrlrange="-1.7837 1.7837" joint="fr3_joint2" kp="4500" kv="450" forcelimited="true" forcerange="-87 87"/>
+        <position ctrllimited="true" ctrlrange="-2.9007 2.9007" joint="fr3_joint3" kp="3500" kv="350" forcelimited="true" forcerange="-87 87"/>
+        <position ctrllimited="true" ctrlrange="-3.0421 -0.1518" joint="fr3_joint4" kp="3500" kv="350" forcelimited="true" forcerange="-87 87"/>
+        <position ctrllimited="true" ctrlrange="-2.8065 2.8065" joint="fr3_joint5" kp="2000" kv="200" forcelimited="true" forcerange="-12 12"/>
+        <position ctrllimited="true" ctrlrange="0.5445 4.5169" joint="fr3_joint6" kp="2000" kv="200" forcelimited="true" forcerange="-12 12"/>
+        <position ctrllimited="true" ctrlrange="-3.0159 3.0159" joint="fr3_joint7" kp="2000" kv="200" forcelimited="true" forcerange="-12 12"/>
+
+        <!-- 两指夹爪 -->
+        <position ctrllimited="true" ctrlrange="0.0 0.04"  joint="fr3_left_finger"  kp="200"/>
+        <position ctrllimited="true" ctrlrange="-0.04 0.0" joint="fr3_right_finger" kp="200"/>
+    </actuator>
+
+
+    <keyframe>
+        <key qpos="0 0 0 -1.57079 0 1.57079 -0.7853 0.04 -0.04  0.35 0.0 0.05 1 0 0 0"
+             ctrl="0 0 0 -1.57079 0 1.57079 -0.7853 0.04 -0.04"/>
+    </keyframe>
+
+
+</mujoco>

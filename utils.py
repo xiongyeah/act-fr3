@@ -303,9 +303,9 @@ def postprocess_base_action(base_action):
 
 def sample_box_pose():
     # FR3 工作空间：桌面上方
-    x_range = [0.35, 0.55]     # 原来 [0.0, 0.2]
-    y_range = [-0.15, 0.15]    # 原来 [0.4, 0.6]
-    z_range = [0.05, 0.05]     # 不变，方块在桌面上
+    x_range = [0.5, 0.5]     # 原来 [0.0, 0.2]
+    y_range = [0.1, 0.1]    # 原来 [0.4, 0.6]
+    z_range = [0, 0]     # 不变，方块在桌面上
 
     ranges = np.vstack([x_range, y_range, z_range])
     cube_position = np.random.uniform(ranges[:, 0], ranges[:, 1])

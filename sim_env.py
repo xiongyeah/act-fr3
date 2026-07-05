@@ -31,7 +31,7 @@ def make_sim_env(task_name):
                        "images": {"top": (480x640x3), "wrist": (480x640x3)}
     """
     if 'fr3_pick_place' in task_name:
-        xml_path = os.path.join(XML_DIR, f'fr3_pick_cube.xml')
+        xml_path = os.path.join(XML_DIR, f'fr3_scene.xml')
         physics = mujoco.Physics.from_xml_path(xml_path)
         task = PickPlaceTask(random=False)
         env = control.Environment(physics, task, time_limit=20, control_timestep=DT,
