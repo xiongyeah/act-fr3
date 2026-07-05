@@ -23,7 +23,7 @@ def main(args):
     with h5py.File(dataset_path, 'r') as root:
         actions = root['/action'][()]
 
-    env = make_sim_env('sim_transfer_cube')
+    env = make_sim_env('fr3_pick_place_scripted')
     BOX_POSE[0] = sample_box_pose() # used in sim reset
     ts = env.reset()
     episode_replay = [ts]

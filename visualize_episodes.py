@@ -10,7 +10,7 @@ from constants import DT
 import IPython
 e = IPython.embed
 
-JOINT_NAMES = ["waist", "shoulder", "elbow", "forearm_roll", "wrist_angle", "wrist_rotate"]
+JOINT_NAMES = ["fr3_joint1", "fr3_joint2", "fr3_joint3", "fr3_joint4", "fr3_joint5", "fr3_joint6", "fr3_joint7"]
 STATE_NAMES = JOINT_NAMES + ["gripper"]
 
 def load_hdf5(dataset_dir, dataset_name):
@@ -96,7 +96,7 @@ def visualize_joints(qpos_list, command_list, plot_path=None, ylim=None, label_o
     fig, axs = plt.subplots(num_figs, 1, figsize=(w, h * num_figs))
 
     # plot joint state
-    all_names = [name + '_left' for name in STATE_NAMES] + [name + '_right' for name in STATE_NAMES]
+    all_names = [name for name in STATE_NAMES]
     for dim_idx in range(num_dim):
         ax = axs[dim_idx]
         ax.plot(qpos[:, dim_idx], label=label1)

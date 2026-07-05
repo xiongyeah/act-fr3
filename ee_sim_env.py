@@ -55,7 +55,8 @@ class FR3EETask(base.Task):
         np.copyto(physics.data.mocap_quat[0], action[3:7])
 
         g_ctrl = PUPPET_GRIPPER_POSITION_UNNORMALIZE_FN(action[7])
-        np.copyto(physics.data.ctrl, np.array([g_ctrl, -g_ctrl]))
+        np.copyto(physics.data.ctrl[:7], physics.data.qpos[:7])   # 关节不抵抗mocap
+        np.copyto(physics.data.ctrl[7:9], [g_ctrl, -g_ctrl])     # 夹爪控制
 
     def initialize_robots(self, physics):
         # reset joint position
@@ -66,15 +67,15 @@ class FR3EETask(base.Task):
         # (1) make an ee_sim env and reset to the same start_pose
         # (2) get env._physics.named.data.xpos['fr3_link7']
         #     get env._physics.named.data.xquat['fr3_link7']
-        np.copyto(physics.data.mocap_pos[0], [0.3, 0.0, 0.4])
-        np.copyto(physics.data.mocap_quat[0], [1, 0, 0, 0])
+        np.copyto(physics.data.mocap_pos[0], [0.554499, 0.000000, 0.731502])
+        np.copyto(physics.data.mocap_quat[0], [0.000000, 0.923898, 0.382638, 0.000000])
 
         # reset gripper control
-        close_gripper_control = np.array([
+        np.copyto(physics.data.ctrl[:7], START_ARM_POSE[:7])  # 关节不抵抗
+        np.copyto(physics.data.ctrl[7:9], [
             PUPPET_GRIPPER_POSITION_CLOSE,
             -PUPPET_GRIPPER_POSITION_CLOSE,
         ])
-        np.copyto(physics.data.ctrl, close_gripper_control)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode."""

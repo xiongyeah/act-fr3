@@ -22,6 +22,7 @@
     </worldbody>
 
     <actuator>
+
         <position ctrllimited="true" ctrlrange="0.0 0.04" joint="fr3_left_finger" kp="200"/>
         <position ctrllimited="true" ctrlrange="-0.04 0.0" joint="fr3_right_finger" kp="200"/>
 
