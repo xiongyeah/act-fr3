@@ -1,5 +1,5 @@
 <mujoco model="fr3">
-  <compiler angle="radian" meshdir="."/>
+  <compiler angle="radian" meshdir="."/>  <!-- 更改读取的文件路径 -->
 
   <option integrator="implicitfast"/>
 
@@ -137,6 +137,21 @@
                       <geom mesh="link7_3" material="black" class="visual"/>
                       <geom name="fr3_link7_collision" class="collision" mesh="link7_coll"/>
                       <site name="attachment_site" pos="0 0 0.107"/>
+                        <!-- 两指夹爪 -->
+                        <body name="fr3_left_finger" pos="0 0 0.107">   <!-- attachment_site offset -->
+                            <joint name="fr3_left_finger" type="slide" axis="0 1 0" 
+                                   limited="true" range="0.0 0.04"/>
+                            <geom type="box" size="0.005 0.003 0.02" pos="0 0.01 0" 
+                                  rgba="0.5 0.5 0.5 1"/>
+                        </body>
+                        <body name="fr3_right_finger" pos="0 0 0.107">
+                            <joint name="fr3_right_finger" type="slide" axis="0 1 0" 
+                                   limited="true" range="-0.04 0.0"/>
+                            <geom type="box" size="0.005 0.003 0.02" pos="0 -0.01 0" 
+                                  rgba="0.5 0.5 0.5 1"/>
+                        </body>
+                        <!-- 腕部相机 -->
+                        <camera name="wrist" pos="0.05 0 0.05" fovy="50" mode="fixed" euler="0 0.8 0" />
                     </body>
                   </body>
                 </body>
@@ -162,7 +177,4 @@
     <exclude body1="fr3_link0" body2="fr3_link1"/>
   </contact>
 
-  <keyframe>
-    <key name="home" qpos="0 0 0 -1.57079 0 1.57079 -0.7853" ctrl="0 0 0 -1.57079 0 1.57079 -0.7853"/>
-  </keyframe>
 </mujoco>

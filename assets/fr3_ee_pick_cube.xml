@@ -1,0 +1,35 @@
+<mujoco>
+    <include file="scene.xml"/>
+    <include file="fr3.xml" />  <!-- 修改为fr3的xml -->
+
+    <equality>
+        <weld body1="mocap" body2="fr3_link7" solref="0.01 1" solimp=".25 .25 0.001"/>
+    </equality>
+
+
+    <worldbody>
+        <body mocap="true" name="mocap" pos="0.3 0 0.4">
+            <site pos="0 0 0" size="0.003" type="box" name="mocap_site"/>
+        </body>
+
+        <body name="box" pos="0.5 0 0.05">
+            <joint name="red_box_joint" type="free" frictionloss="0.01"/>
+            <inertial pos="0 0 0" mass="0.05" diaginertia="0.002 0.002 0.002"/>
+            <geom condim="4" solimp="2 1 0.01" solref="0.01 1" friction="1 0.005 0.0001"
+                  pos="0 0 0" size="0.02 0.02 0.02" type="box" name="red_box" rgba="1 0 0 1"/>
+        </body>
+
+    </worldbody>
+
+    <actuator>
+        <position ctrllimited="true" ctrlrange="0.0 0.04" joint="fr3_left_finger" kp="200"/>
+        <position ctrllimited="true" ctrlrange="-0.04 0.0" joint="fr3_right_finger" kp="200"/>
+
+    </actuator>
+
+    <keyframe>
+        <key qpos="0 0 0 -1.57079 0 1.57079 -0.7853 0.04 -0.04  0.5 0 0.05 1 0 0 0"/>
+    </keyframe>
+
+
+</mujoco>
