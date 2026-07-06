@@ -135,15 +135,15 @@ class PickPlaceTask(FR3Task):
 
         # 方块当前位置
         box_pos = physics.named.data.qpos['red_box_joint'][:3]
-        target_pos = np.array([0.5, 0.2, 0.1])  # 目标位置
-        at_target = np.linalg.norm(box_pos - target_pos) < 0.03
+        target_pos = np.array([0.7, 0.2, 0.02])  # 目标位置
+        at_target = np.linalg.norm(box_pos - target_pos) < 0.04
 
         reward = 0
         if touch_gripper:                    # 触碰方块
             reward = 1
         if touch_gripper and not touch_table: # 抓起
             reward = 2
-        if touch_gripper and not touch_table and at_target:
+        if at_target:
             reward = 3        
         
         return reward

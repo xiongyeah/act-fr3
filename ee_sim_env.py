@@ -123,7 +123,12 @@ class FR3EETask(base.Task):
         target_quat = action[3:7]
 
         # IK: map end-effector target → joint angles
+        # 保存当前 qpos，IK 在迭代中会污染它
+        qpos_backup = physics.data.qpos[:7].copy()
         target_q = self._solve_ik(physics, target_pos, target_quat)
+        # 恢复 qpos，让位置控制器有误差可追 = 手臂有刚度
+        physics.data.qpos[:7] = qpos_backup
+        physics.forward()
         np.copyto(physics.data.ctrl[:7], target_q)
 
         # Gripper
@@ -132,26 +137,16 @@ class FR3EETask(base.Task):
 
         # Debug prints
         # step = int(round(physics.data.time / 0.02))
-        # if step in (0, 200, 600, 800):
+        # if step in (0, 399):
         #     qpos_backup = physics.data.qpos[:7].copy()
         #     physics.data.qpos[:7] = target_q
         #     physics.forward()
-        #     link7_pos = physics.named.data.xpos['fr3_link7'].copy()
-        #     link7_quat = physics.named.data.xquat['fr3_link7'].copy()
-        #     finger_pos = physics.named.data.xpos['fr3_left_finger'].copy()
         #     box_pos = physics.named.data.xpos['box'].copy()
         #     # Compute local Z direction (finger direction)
         #     from pyquaternion import Quaternion
-        #     local_z = Quaternion(link7_quat).rotate([0, 0, 1])
         #     physics.data.qpos[:7] = qpos_backup
         #     physics.forward()
         #     print(f"t={step}")
-        #     print(f"  target quat={target_quat}")
-        #     print(f"  IK    quat={np.round(link7_quat, 4)}")
-        #     print(f"  finger dir (Z)={np.round(local_z, 3)}  (-1=down)")
-        #     print(f"  cmd_xyz={target_pos}")
-        #     print(f"  IK link7={np.round(link7_pos, 3)}")
-        #     print(f"  finger={np.round(finger_pos, 3)}")
         #     print(f"  box={np.round(box_pos, 3)}")
 
     def initialize_robots(self, physics):
@@ -254,15 +249,16 @@ class PickPlaceEETask(FR3EETask):
 
         # 方块当前位置
         box_pos = physics.named.data.qpos['red_box_joint'][:3]
-        target_pos = np.array([0.5, 0.2, 0.1])  # 目标位置
-        at_target = np.linalg.norm(box_pos - target_pos) < 0.03
+        target_pos = np.array([0.7, 0.2, 0.02])  # 目标位置
+        at_target = np.linalg.norm(box_pos - target_pos) < 0.04
+        # print(f"at_target={np.linalg.norm(box_pos - target_pos)}")
 
         reward = 0
         if touch_gripper:                    # 触碰方块
             reward = 1
         if touch_gripper and not touch_table: # 抓起
             reward = 2
-        if touch_gripper and not touch_table and at_target:
+        if at_target:
             reward = 3        
         
         return reward

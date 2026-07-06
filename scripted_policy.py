@@ -73,30 +73,30 @@ class PickAndPlacePolicy(BasePolicy):
         # 最终抓取姿态 = yaw 旋转 × 向下姿态（手指跟随方块旋转）
         grasp_quat = (q_yaw * q_down).elements
 
-        grasp_offset = np.array([0, 0, -0.107])       # link7→手指body中心（世界坐标）
+        grasp_offset = np.array([0, 0, -0.11])        # link7→手指body中心（世界坐标），fr3.xml pos_z=0.11
 
 
-        target_xyz = np.array([0.8, 0.2, 0.02])  # 目标位置
+        target_xyz = np.array([0.7, 0.2, 0.02])  # 目标位置
 
         self.trajectory = [
-            # {"t": 0,   "xyz": init_mocap_pose[:3], "quat": init_mocap_pose[3:], "gripper": 1},      # 初始
-            # {"t": 100, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.08]), "quat": gripper_pick_quat.elements, "gripper": 1},  # 移到方块上方
-            # {"t": 140, "xyz": box_xyz - grasp_offset  + np.array([0, 0, -0.02]), "quat": gripper_pick_quat.elements, "gripper": 1},  # 下降
-            # {"t": 170, "xyz": box_xyz - grasp_offset  + np.array([0, 0, -0.02]), "quat": gripper_pick_quat.elements, "gripper": 0},  # 闭合夹爪
-            # {"t": 220, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.15]), "quat": gripper_pick_quat.elements, "gripper": 0},  # 提起
-            # {"t": 300, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.1]), "quat": np.array([1, 0, 0, 0]), "gripper": 0},    # 移到目标上方
-            # {"t": 340, "xyz": target_xyz - grasp_offset, "quat": np.array([1, 0, 0, 0]), "gripper": 0},                             # 下降
-            # {"t": 370, "xyz": target_xyz - grasp_offset, "quat": np.array([1, 0, 0, 0]), "gripper": 1},                             # 松开
-            # {"t": 400, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.1]), "quat": np.array([1, 0, 0, 0]), "gripper": 1},    # 退回
+            # {"t": 0,   "xyz": init_mocap_pose[:3], "quat": init_mocap_pose[3:], "gripper": 1},      # 初始（自然姿态）
+            # {"t": 200, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 1},  # 移到方块上方（对齐方块朝向）
+            # {"t": 280, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},  # 下降
+            # {"t": 340, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},  # 闭合夹爪
+            # {"t": 440, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 0},  # 提起
+            # {"t": 600, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 0},    # 移到目标上方
+            # {"t": 680, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},    # 下降
+            # {"t": 740, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},    # 松开
+            # {"t": 800, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 1},    # 退回
             {"t": 0,   "xyz": init_mocap_pose[:3], "quat": init_mocap_pose[3:], "gripper": 1},      # 初始（自然姿态）
-            {"t": 200, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 1},  # 移到方块上方（对齐方块朝向）
-            {"t": 280, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},  # 下降
-            {"t": 340, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},  # 闭合夹爪
-            {"t": 440, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 0},  # 提起
-            {"t": 600, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 0},    # 移到目标上方
-            {"t": 680, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},    # 下降
-            {"t": 740, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},    # 松开
-            {"t": 800, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.05]), "quat": grasp_quat, "gripper": 1},    # 退回
+            {"t": 100, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.06]), "quat": grasp_quat, "gripper": 1},  # 移到方块上方（对齐方块朝向）
+            {"t": 140, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},  # 下降
+            {"t": 170, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},  # 闭合夹爪
+            {"t": 200, "xyz": box_xyz - grasp_offset  + np.array([0, 0, 0.06]), "quat": grasp_quat, "gripper": 0},  # 提起
+            {"t": 300, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.06]), "quat": grasp_quat, "gripper": 0},    # 移到目标上方
+            {"t": 330, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 0},    # 下降
+            {"t": 350, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.025]), "quat": grasp_quat, "gripper": 1},    # 松开
+            {"t": 400, "xyz": target_xyz - grasp_offset  + np.array([0, 0, 0.06]), "quat": grasp_quat, "gripper": 1},    # 退回
         ]
 
 def test_policy(task_name):

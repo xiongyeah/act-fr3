@@ -8,14 +8,14 @@ SIM_TASK_CONFIGS = {
     'fr3_pick_place_scripted': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_scripted',
         'num_episodes': 50,
-        'episode_len': 800,
+        'episode_len': 400,
         'camera_names': ['top', 'wrist']
     },
 
     'fr3_pick_place_human': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_human',
         'num_episodes': 50,
-        'episode_len': 800,
+        'episode_len': 400,
         'camera_names': ['top']
     },
 
@@ -30,7 +30,7 @@ SIM_TASK_CONFIGS = {
     'fr3_pick_place_scripted_mirror': {
         'dataset_dir': DATA_DIR + '/fr3_pick_place_scripted_mirror',
         'num_episodes': None,
-        'episode_len': 800,
+        'episode_len': 400,
         'camera_names': ['top', 'wrist']
     },
 
@@ -50,13 +50,13 @@ XML_DIR = str(pathlib.Path(__file__).parent.resolve()) + '/assets/' # note: abso
 # Finger position limits (qpos[7])
 MASTER_GRIPPER_POSITION_OPEN = 0.04
 MASTER_GRIPPER_POSITION_CLOSE = 0.0
-PUPPET_GRIPPER_POSITION_OPEN = 0.04
+PUPPET_GRIPPER_POSITION_OPEN = 0.025
 PUPPET_GRIPPER_POSITION_CLOSE = 0.0
 
 # Gripper joint limits (qpos[6])
 MASTER_GRIPPER_JOINT_OPEN = 0.04
 MASTER_GRIPPER_JOINT_CLOSE = 0.0
-PUPPET_GRIPPER_JOINT_OPEN = 0.04
+PUPPET_GRIPPER_JOINT_OPEN = 0.025
 PUPPET_GRIPPER_JOINT_CLOSE = 0.0
 
 ############################ Helper functions ############################

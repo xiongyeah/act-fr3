@@ -76,7 +76,7 @@ def main(args):
         # replace gripper pose with gripper control
         gripper_ctrl_traj = [ts.observation['gripper_ctrl'] for ts in episode]
         for joint, ctrl in zip(joint_traj, gripper_ctrl_traj):
-            joint[7] = PUPPET_GRIPPER_POSITION_NORMALIZE_FN(ctrl[0])
+            joint[7] = PUPPET_GRIPPER_POSITION_NORMALIZE_FN(ctrl[7])   # 手指在索引7
 
         subtask_info = episode[0].observation['env_state'].copy() # box pose at step 0
 
