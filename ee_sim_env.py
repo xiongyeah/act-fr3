@@ -48,48 +48,129 @@ def make_ee_sim_env(task_name):
 class FR3EETask(base.Task):
     def __init__(self, random=None):
         super().__init__(random=random)
+        # Joint limits from fr3.xml
+        self.q_min = np.array([-2.7437, -1.7837, -2.9007, -3.0421, -2.8065,  0.5445, -3.0159])
+        self.q_max = np.array([ 2.7437,  1.7837,  2.9007, -0.1518,  2.8065,  4.5169,  3.0159])
+
+    @staticmethod
+    def _quat_mul(q1, q2):
+        """Quaternion multiplication (w,x,y,z format)."""
+        w1, x1, y1, z1 = q1
+        w2, x2, y2, z2 = q2
+        return np.array([
+            w1*w2 - x1*x2 - y1*y2 - z1*z2,
+            w1*x2 + x1*w2 + y1*z2 - z1*y2,
+            w1*y2 - x1*z2 + y1*w2 + z1*x2,
+            w1*z2 + x1*y2 - y1*x2 + z1*w2,
+        ])
+
+    def _solve_ik(self, physics, target_pos, target_quat, max_iter=30, tol=1e-4, damping=0.05, alpha=0.8):
+        """Numerical IK using damped least squares Jacobian pseudo-inverse."""
+        q = physics.data.qpos[:7].copy()
+        eps = 1e-5
+
+        for _ in range(max_iter):
+            # Forward kinematics
+            physics.data.qpos[:7] = q
+            physics.forward()
+            pos = physics.named.data.xpos['fr3_link7'].copy()
+            quat = physics.named.data.xquat['fr3_link7'].copy()
+
+            # Position error
+            pos_err = target_pos - pos
+
+            # Orientation error via quaternion difference
+            q_cur_inv = np.array([quat[0], -quat[1], -quat[2], -quat[3]])
+            q_err = self._quat_mul(target_quat, q_cur_inv)
+            if q_err[0] < 0:
+                q_err = -q_err
+            ori_err = 2.0 * q_err[1:]  # small-angle approximation for angular velocity
+
+            err = np.concatenate([pos_err, ori_err])
+            if np.linalg.norm(err) < tol:
+                break
+
+            # Numerical Jacobian (6×7)
+            J = np.zeros((6, 7))
+            for i in range(7):
+                q_pert = q.copy()
+                q_pert[i] += eps
+                physics.data.qpos[:7] = q_pert
+                physics.forward()
+                pos_p = physics.named.data.xpos['fr3_link7'].copy()
+                quat_p = physics.named.data.xquat['fr3_link7'].copy()
+
+                J[:3, i] = (pos_p - pos) / eps
+
+                q_inv = np.array([quat[0], -quat[1], -quat[2], -quat[3]])
+                dq = self._quat_mul(quat_p, q_inv)
+                if dq[0] < 0:
+                    dq = -dq
+                J[3:, i] = 2.0 * dq[1:] / eps
+
+            # Damped pseudo-inverse: dq = J^T (JJ^T + λI)^{-1} err
+            JJT = J @ J.T
+            dq = J.T @ np.linalg.solve(JJT + damping * np.eye(6), err)
+            q = q + alpha * dq
+            q = np.clip(q, self.q_min, self.q_max)
+
+        # Restore original qpos (IK only reads, shouldn't permanently change state)
+        return q
 
     def before_step(self, action, physics):
         # action: [x, y, z, qw, qx, qy, qz, gripper]  8 维
-        np.copyto(physics.data.mocap_pos[0], action[:3])
-        np.copyto(physics.data.mocap_quat[0], action[3:7])
+        target_pos = action[:3]
+        target_quat = action[3:7]
 
+        # IK: map end-effector target → joint angles
+        target_q = self._solve_ik(physics, target_pos, target_quat)
+        np.copyto(physics.data.ctrl[:7], target_q)
+
+        # Gripper
         g_ctrl = PUPPET_GRIPPER_POSITION_UNNORMALIZE_FN(action[7])
-        np.copyto(physics.data.ctrl, [g_ctrl, -g_ctrl])   # 关节不抵抗mocap
+        np.copyto(physics.data.ctrl[7:9], [g_ctrl, -g_ctrl])
 
-        # 加这几行
-        # step = int(round(physics.data.time / 0.02))   # time / DT = 实际步数
+        # Debug prints
+        # step = int(round(physics.data.time / 0.02))
         # if step in (0, 200, 600, 800):
-        #     cmd_pos = action[:3]
-        #     actual_pos = physics.data.mocap_pos[0].copy()
+        #     qpos_backup = physics.data.qpos[:7].copy()
+        #     physics.data.qpos[:7] = target_q
+        #     physics.forward()
+        #     link7_pos = physics.named.data.xpos['fr3_link7'].copy()
+        #     link7_quat = physics.named.data.xquat['fr3_link7'].copy()
         #     finger_pos = physics.named.data.xpos['fr3_left_finger'].copy()
         #     box_pos = physics.named.data.xpos['box'].copy()
-        #     link7_pos = physics.named.data.xpos['fr3_link7'].copy()
-        #     print(f"  link7={link7_pos}")
+        #     # Compute local Z direction (finger direction)
+        #     from pyquaternion import Quaternion
+        #     local_z = Quaternion(link7_quat).rotate([0, 0, 1])
+        #     physics.data.qpos[:7] = qpos_backup
+        #     physics.forward()
         #     print(f"t={step}")
-        #     print(f"  cmd_xyz={cmd_pos}")
-        #     print(f"  actual_mocap={actual_pos}")
-        #     print(f"  finger={finger_pos}")
-        #     print(f"  box={box_pos}")
+        #     print(f"  target quat={target_quat}")
+        #     print(f"  IK    quat={np.round(link7_quat, 4)}")
+        #     print(f"  finger dir (Z)={np.round(local_z, 3)}  (-1=down)")
+        #     print(f"  cmd_xyz={target_pos}")
+        #     print(f"  IK link7={np.round(link7_pos, 3)}")
+        #     print(f"  finger={np.round(finger_pos, 3)}")
+        #     print(f"  box={np.round(box_pos, 3)}")
 
     def initialize_robots(self, physics):
         # reset joint position
         physics.named.data.qpos[:9] = START_ARM_POSE
 
-        # reset mocap to align with end effector
-        # to obtain these numbers:
-        # (1) make an ee_sim env and reset to the same start_pose
-        # (2) get env._physics.named.data.xpos['fr3_link7']
-        #     get env._physics.named.data.xquat['fr3_link7']
-        np.copyto(physics.data.mocap_pos[0], [0.088, -0.00004, 1.032])
-        np.copyto(physics.data.mocap_quat[0], [0.0134, 0.9992, 0.00005, 0.0388])
+        # Forward to get link7 pose from START_ARM_POSE
+        physics.forward()
+        link7_pos = physics.named.data.xpos['fr3_link7'].copy()
+        link7_quat = physics.named.data.xquat['fr3_link7'].copy()
+        np.copyto(physics.data.mocap_pos[0], link7_pos)
+        np.copyto(physics.data.mocap_quat[0], link7_quat)
 
-        # reset gripper control
-        close_gripper_control = np.array([
+        # Joint controllers start at START_ARM_POSE
+        np.copyto(physics.data.ctrl[:7], START_ARM_POSE[:7])
+        np.copyto(physics.data.ctrl[7:9], [
             PUPPET_GRIPPER_POSITION_CLOSE,
             -PUPPET_GRIPPER_POSITION_CLOSE,
         ])
-        np.copyto(physics.data.ctrl, close_gripper_control)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode."""
