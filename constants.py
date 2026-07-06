@@ -2,7 +2,7 @@ import pathlib
 import os
 
 ### Task parameters
-DATA_DIR = '/home/zfu/interbotix_ws/src/act/data' if os.getlogin() == 'zfu' else '~/act-fr3/datasets'
+DATA_DIR = '/home/zfu/interbotix_ws/src/act/data' if os.getlogin() == 'zfu' else os.path.expanduser('~/act-fr3/datasets')
 #改为FR3对应的任务
 SIM_TASK_CONFIGS = {
     'fr3_pick_place_scripted': {
