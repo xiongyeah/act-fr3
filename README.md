@@ -1,15 +1,11 @@
 # Imitation Learning algorithms and Co-training for Mobile ALOHA
 
 
-#### Project Website: https://mobile-aloha.github.io/
+#### Source Project Website: https://mobile-aloha.github.io/
 
-This repo contains the implementation of ACT, Diffusion Policy and VINN, together with 2 simulated environments:
-Transfer Cube and Bimanual Insertion. You can train and evaluate them in sim or real.
-For real, you would also need to install [Mobile ALOHA](https://github.com/MarkFzp/mobile-aloha). This repo is forked from the [ACT repo](https://github.com/tonyzhaozh/act).
-
-### Updates:
-You can find all scripted/human demo for simulated environments [here](https://drive.google.com/drive/folders/1gPR03v05S1xiInoVJn7G7VJ9pDCnxq9O?usp=share_link).
-
+该仓库在 https://mobile-aloha.github.io/ 基础上修改，将操作主体由ViperX机械臂更改为FR3机械臂、任务改为拾取物块并放置到指定位置
+You can train and evaluate them in sim or real.
+For real, you would also need to install [Mobile ALOHA](https://github.com/MarkFzp/mobile-aloha). 
 
 ### Repo Structure
 - ``imitate_episodes.py`` Train and Evaluate ACT
@@ -54,10 +50,10 @@ To set up a new terminal, run:
 
 ### Simulated experiments (LEGACY table-top ALOHA environments)
 
-We use ``sim_transfer_cube_scripted`` task in the examples below. Another option is ``sim_insertion_scripted``.
+We use ``fr3_pick_place_scripted`` task in the examples below.
 To generated 50 episodes of scripted data, run:
 
-    python3 record_sim_episodes.py --task_name sim_transfer_cube_scripted --dataset_dir <data save dir> --num_episodes 50
+    python3 record_sim_episodes.py --task_name fr3_pick_place_scripted --dataset_dir <data save dir> --num_episodes 50
 
 To can add the flag ``--onscreen_render`` to see real-time rendering.
 To visualize the simulated episodes after it is collected, run
@@ -65,6 +61,10 @@ To visualize the simulated episodes after it is collected, run
     python3 visualize_episodes.py --dataset_dir <data save dir> --episode_idx 0
 
 Note: to visualize data from the mobile-aloha hardware, use the visualize_episodes.py from https://github.com/MarkFzp/mobile-aloha
+
+### 训练部分我还未开始修改，以下是原仓库的README训练部分
+
+
 
 To train ACT:
     
