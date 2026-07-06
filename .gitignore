@@ -14,3 +14,4 @@ ckpts/
 .vscode/
 wandb/
 datasets/
+mujuco_fr3/
