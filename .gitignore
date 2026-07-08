@@ -15,3 +15,4 @@ ckpts/
 wandb/
 datasets/
 mujuco_fr3/
+ckpt/
