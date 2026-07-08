@@ -1,4 +1,6 @@
 import torch
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import numpy as np
 import os
 import pickle
@@ -89,14 +91,14 @@ def main(args):
                          'vq': args['use_vq'],
                          'vq_class': args['vq_class'],
                          'vq_dim': args['vq_dim'],
-                         'action_dim': 10,
+                         'action_dim': 8,  # FR3: 7 joints + 1 gripper
                          'no_encoder': args['no_encoder'],
                          }
     elif policy_class == 'Diffusion':
 
         policy_config = {'lr': args['lr'],
                          'camera_names': camera_names,
-                         'action_dim': 10,
+                         'action_dim': 8,  # FR3: 7 joints + 1 gripper
                          'observation_horizon': 1,
                          'action_horizon': 8,
                          'prediction_horizon': args['chunk_size'],
@@ -209,7 +211,7 @@ def get_image(ts, camera_names, rand_crop_resize=False):
         curr_image = rearrange(ts.observation['images'][cam_name], 'h w c -> c h w')
         curr_images.append(curr_image)
     curr_image = np.stack(curr_images, axis=0)
-    curr_image = torch.from_numpy(curr_image / 255.0).float().cuda().unsqueeze(0)
+    curr_image = torch.from_numpy(curr_image / 255.0).float().to(DEVICE).unsqueeze(0)
 
     if rand_crop_resize:
         print('rand crop resize is used!')
@@ -247,7 +249,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
     policy = make_policy(policy_class, policy_config)
     loading_status = policy.deserialize(torch.load(ckpt_path))
     print(loading_status)
-    policy.cuda()
+    policy.to(DEVICE)
     policy.eval()
     if vq:
         vq_dim = config['policy_config']['vq_dim']
@@ -256,7 +258,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
         latent_model_ckpt_path = os.path.join(ckpt_dir, 'latent_model_last.ckpt')
         latent_model.deserialize(torch.load(latent_model_ckpt_path))
         latent_model.eval()
-        latent_model.cuda()
+        latent_model.to(DEVICE)
         print(f'Loaded policy from: {ckpt_path}, latent model from: {latent_model_ckpt_path}')
     else:
         print(f'Loaded: {ckpt_path}')
@@ -274,7 +276,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
     #     actuator_network_path = os.path.join(actuator_network_dir, 'actuator_net_last.ckpt')
     #     loading_status = actuator_network.load_state_dict(torch.load(actuator_network_path))
     #     actuator_network.eval()
-    #     actuator_network.cuda()
+    #     actuator_network.to(DEVICE)
     #     print(f'Loaded actuator network from: {actuator_network_path}, {loading_status}')
 
     #     actuator_stats_path  = os.path.join(actuator_network_dir, 'actuator_net_stats.pkl')
@@ -334,9 +336,9 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
 
         ### evaluation loop
         if temporal_agg:
-            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, 10]).cuda()
+            all_time_actions = torch.zeros([max_timesteps, max_timesteps+num_queries, 8]).to(DEVICE)  # FR3 action_dim=8
 
-        # qpos_history = torch.zeros((1, max_timesteps, state_dim)).cuda()
+        # qpos_history = torch.zeros((1, max_timesteps, state_dim)).to(DEVICE)
         qpos_history_raw = np.zeros((max_timesteps, state_dim))
         image_list = [] # for visualization
         qpos_list = []
@@ -366,7 +368,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
                 qpos_numpy = np.array(obs['qpos'])
                 qpos_history_raw[t] = qpos_numpy
                 qpos = pre_process(qpos_numpy)
-                qpos = torch.from_numpy(qpos).float().cuda().unsqueeze(0)
+                qpos = torch.from_numpy(qpos).float().to(DEVICE).unsqueeze(0)
                 # qpos_history[:, t] = qpos
                 if t % query_frequency == 0:
                     curr_image = get_image(ts, camera_names, rand_crop_resize=(config['policy_class'] == 'Diffusion'))
@@ -405,7 +407,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
                         k = 0.01
                         exp_weights = np.exp(-k * np.arange(len(actions_for_curr_step)))
                         exp_weights = exp_weights / exp_weights.sum()
-                        exp_weights = torch.from_numpy(exp_weights).cuda().unsqueeze(dim=1)
+                        exp_weights = torch.from_numpy(exp_weights).to(DEVICE).unsqueeze(dim=1)
                         raw_action = (actions_for_curr_step * exp_weights).sum(dim=0, keepdim=True)
                     else:
                         raw_action = all_actions[:, t % query_frequency]
@@ -440,7 +442,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
                 #     if t % prediction_len == 0:
                 #         offset_start_ts = t + history_len
                 #         actuator_net_in = np.array(norm_episode_all_base_actions[offset_start_ts - history_len: offset_start_ts + future_len])
-                #         actuator_net_in = torch.from_numpy(actuator_net_in).float().unsqueeze(dim=0).cuda()
+                #         actuator_net_in = torch.from_numpy(actuator_net_in).float().unsqueeze(dim=0).to(DEVICE)
                 #         pred = actuator_network(actuator_net_in)
                 #         base_action_chunk = actuator_unnorm(pred.detach().cpu().numpy()[0])
                 #     base_action = base_action_chunk[t % prediction_len]
@@ -526,7 +528,7 @@ def eval_bc(config, ckpt_name, save_episode=True, num_rollouts=50):
 
 def forward_pass(data, policy):
     image_data, qpos_data, action_data, is_pad = data
-    image_data, qpos_data, action_data, is_pad = image_data.cuda(), qpos_data.cuda(), action_data.cuda(), is_pad.cuda()
+    image_data, qpos_data, action_data, is_pad = image_data.to(DEVICE), qpos_data.to(DEVICE), action_data.to(DEVICE), is_pad.to(DEVICE)
     return policy(qpos_data, image_data, action_data, is_pad) # TODO remove None
 
 
@@ -549,7 +551,7 @@ def train_bc(train_dataloader, val_dataloader, config):
     if config['resume_ckpt_path'] is not None:
         loading_status = policy.deserialize(torch.load(config['resume_ckpt_path']))
         print(f'Resume policy from: {config["resume_ckpt_path"]}, Status: {loading_status}')
-    policy.cuda()
+    policy.to(DEVICE)
     optimizer = make_optimizer(policy_class, policy)
 
     min_val_loss = np.inf

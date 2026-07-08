@@ -267,7 +267,7 @@ def build_encoder(args):
 
 
 def build(args):
-    state_dim = 14 # TODO hardcode
+    state_dim = 8  # FR3: 7 joints + 1 gripper
 
     # From state
     # backbone = None # from state for now, no need for conv nets
@@ -304,7 +304,7 @@ def build(args):
     return model
 
 def build_cnnmlp(args):
-    state_dim = 14 # TODO hardcode
+    state_dim = 8  # FR3: 7 joints + 1 gripper
 
     # From state
     # backbone = None # from state for now, no need for conv nets

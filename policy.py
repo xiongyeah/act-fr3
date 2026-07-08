@@ -2,6 +2,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 import torchvision.transforms as transforms
 import torch
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import numpy as np
 from detr.main import build_ACT_model_and_optimizer, build_CNNMLP_model_and_optimizer
 import IPython
@@ -64,7 +66,7 @@ class DiffusionPolicy(nn.Module):
             })
         })
 
-        nets = nets.float().cuda()
+        nets = nets.float().to(DEVICE)
         ENABLE_EMA = True
         if ENABLE_EMA:
             ema = EMAModel(model=nets, power=self.ema_power)

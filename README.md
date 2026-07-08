@@ -21,12 +21,20 @@ For real, you would also need to install [Mobile ALOHA](https://github.com/MarkF
 
 ### Installation
 
-    conda create -n aloha python=3.8.10
+    # 1. 创建 conda 环境
+    conda env create -f conda_env.yaml
     conda activate aloha
-    pip install -r requirements.txt
-    cd act/detr && pip install -e .
 
-- also need to install https://github.com/ARISE-Initiative/robomimic/tree/r2d2 (note the r2d2 branch) for Diffusion Policy by `pip install -e .`
+    # 2. 安装 Python 依赖
+    pip install -r requirements.txt
+
+    # 3. 安装 detr 模块
+    cd detr && pip install -e . && cd ..
+
+    # 4. 安装 robomimic (Diffusion Policy 需要)
+    git clone https://github.com/ARISE-Initiative/robomimic.git
+    cd robomimic && git fetch origin bcbfbb2d4188604557bb42876bc2b1886654e65f && git checkout FETCH_HEAD && pip install -e . && cd ..
+
 
 ### Example Usages
 
@@ -35,37 +43,34 @@ To set up a new terminal, run:
     conda activate aloha
     cd <path to act repo>
 
-### Simulated experiments (LEGACY table-top ALOHA environments)
+### Simulated experiments (FR3 MuJoCo environments)
 
-We use ``fr3_pick_place_scripted`` task in the examples below.
-To generated 50 episodes of scripted data, run:
+以 ``fr3_pick_place_scripted`` 任务为例。
+生成 50 条脚本策略演示数据：
 
     python3 record_sim_episodes.py --task_name fr3_pick_place_scripted --dataset_dir <data save dir> --num_episodes 50
 
-To can add the flag ``--onscreen_render`` to see real-time rendering.
+添加 ``--onscreen_render`` 可实时查看渲染画面。
 To visualize the simulated episodes after it is collected, run
 
     python3 visualize_episodes.py --dataset_dir <data save dir> --episode_idx 0
 
 Note: to visualize data from the mobile-aloha hardware, use the visualize_episodes.py from https://github.com/MarkFzp/mobile-aloha
 
-### 训练部分我还未开始修改，以下是原仓库的README训练部分
+### 训练
 
+训练 ACT 策略：
 
-
-To train ACT:
-    
-    # Transfer Cube task
-    python3 imitate_episodes.py --task_name fr3_pick_place_scripted --ckpt_dir <ckpt dir> --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 --batch_size 8 --dim_feedforward 3200 --num_steps 2000  --lr 1e-5 --seed 0
+    # FR3 Pick Place 任务
+    python3 imitate_episodes.py --task_name fr3_pick_place_scripted --ckpt_dir <ckpt dir> --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 --batch_size 8 --dim_feedforward 3200 --num_steps 2000 --lr 1e-5 --seed 0
 
 
 To evaluate the policy, run the same command but add ``--eval``. This loads the best validation checkpoint.
-The success rate should be around 90% for transfer cube, and around 50% for insertion.
 To enable temporal ensembling, add flag ``--temporal_agg``.
 Videos will be saved to ``<ckpt_dir>`` for each rollout.
 You can also add ``--onscreen_render`` to see real-time rendering during evaluation.
 
-For real-world data where things can be harder to model, train for at least 5000 epochs or 3-4 times the length after the loss has plateaued.
+If the policy is jerky or pauses mid-episode, train for more steps (e.g. ``--num_steps 5000``).
 Please refer to [tuning tips](https://docs.google.com/document/d/1FVIZfoALXg_ZkYKaYVh-qOlaXveq5CtvJHXkY25eYhs/edit?usp=sharing) for more info.
 
 ### [ACT tuning tips](https://docs.google.com/document/d/1FVIZfoALXg_ZkYKaYVh-qOlaXveq5CtvJHXkY25eYhs/edit?usp=sharing)
