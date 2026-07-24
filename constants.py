@@ -50,13 +50,13 @@ XML_DIR = str(pathlib.Path(__file__).parent.resolve()) + '/assets/' # note: abso
 # Finger position limits (qpos[7])
 MASTER_GRIPPER_POSITION_OPEN = 0.04
 MASTER_GRIPPER_POSITION_CLOSE = 0.0
-PUPPET_GRIPPER_POSITION_OPEN = 0.025
+PUPPET_GRIPPER_POSITION_OPEN = 0.04    # Franka Hand: 40mm/finger = 80mm total
 PUPPET_GRIPPER_POSITION_CLOSE = 0.0
 
 # Gripper joint limits (qpos[6])
 MASTER_GRIPPER_JOINT_OPEN = 0.04
 MASTER_GRIPPER_JOINT_CLOSE = 0.0
-PUPPET_GRIPPER_JOINT_OPEN = 0.025
+PUPPET_GRIPPER_JOINT_OPEN = 0.04        # Franka Hand
 PUPPET_GRIPPER_JOINT_CLOSE = 0.0
 
 ############################ Helper functions ############################

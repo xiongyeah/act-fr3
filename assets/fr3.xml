@@ -64,8 +64,10 @@
     <mesh name="link5_coll" file="link5.stl"/>
     <mesh name="link6_coll" file="link6.stl"/>
     <mesh name="link7_coll" file="link7.stl"/>
-    <mesh name="finger_left"  file="vx300s_10_custom_finger_left.stl"  scale="0.001 0.001 0.001"/>
-    <mesh name="finger_right" file="vx300s_10_custom_finger_right.stl" scale="0.001 0.001 0.001"/>
+    <!-- Franka Hand meshes from franka_description -->
+    <mesh name="franka_hand_viz" file="franka_hand_viz.stl"/>
+    <mesh name="franka_hand_collision" file="franka_hand_collision.stl"/>
+    <mesh name="franka_finger_viz" file="franka_finger_viz.stl"/>
   </asset>
 
   <worldbody>
@@ -139,20 +141,32 @@
                       <geom mesh="link7_3" material="black" class="visual"/>
                       <geom name="fr3_link7_collision" class="collision" mesh="link7_coll"/>
                       <site name="attachment_site" pos="0 0 0.107"/>
-                        <!-- 两指夹爪 -->
-                        <body name="fr3_left_finger" pos="0 0 0.11">   <!-- attachment_site offset -->
-                            <joint name="fr3_left_finger" type="slide" axis="0 1 0" 
+                        <!-- Franka Hand 基座（法兰面 = attachment_site） -->
+                        <geom name="fr3_hand_base_viz" type="mesh" mesh="franka_hand_viz" pos="0 0 0.107"
+                              rgba="0.45 0.45 0.50 1" contype="0" conaffinity="0"/>
+                        <geom name="fr3_hand_base" type="mesh" mesh="franka_hand_collision" pos="0 0 0.107"
+                              group="3" rgba="0.35 0.35 0.40 1"/>
+                        <!-- Franka Hand 左指（关节原点 = 法兰 + 58.4mm，匹配 URDF） -->
+                        <body name="fr3_left_finger" pos="0 0 0.1654">
+                            <joint name="fr3_left_finger" type="slide" axis="0 1 0"
                                    limited="true" range="0.0 0.04"/>
-                            <geom name="fr3_left_finger" type="box" size="0.005 0.008 0.025" pos="0 0.01 0"
-                                  rgba="0.5 0.5 0.5 1" condim="4" solimp="2 1 0.01" solref="0.01 1"
-                                  friction="5 0.01 0.0001" contype="1" conaffinity="1"/>
+                            <geom name="fr3_left_finger_viz" type="mesh" mesh="franka_finger_viz"
+                                  group="2" contype="0" conaffinity="0"
+                                  rgba="0.6 0.6 0.6 1"/>
+                            <geom name="fr3_left_finger_coll" type="box" size="0.01 0.007 0.027" pos="0 0.009 0.027"
+                                  group="3" rgba="0.55 0.55 0.55 1" condim="4" solimp="2 1 0.01" solref="0.01 1"
+                                  friction="5 0.1 0.001" contype="1" conaffinity="1"/>
                         </body>
-                        <body name="fr3_right_finger" pos="0 0 0.11">
-                            <joint name="fr3_right_finger" type="slide" axis="0 1 0" 
+                        <!-- Franka Hand 右指（同 mesh，euler Z=180° 镜像，匹配 URDF） -->
+                        <body name="fr3_right_finger" pos="0 0 0.1654">
+                            <joint name="fr3_right_finger" type="slide" axis="0 1 0"
                                    limited="true" range="-0.04 0.0"/>
-                            <geom name="fr3_right_finger" type="box" size="0.005 0.008 0.025" pos="0 -0.01 0"
-                                  rgba="0.5 0.5 0.5 1" condim="4" solimp="2 1 0.01" solref="0.01 1"
-                                  friction="5 0.01 0.0001" contype="1" conaffinity="1"/>
+                            <geom name="fr3_right_finger_viz" type="mesh" mesh="franka_finger_viz"
+                                  euler="0 0 3.14159" group="2" contype="0" conaffinity="0"
+                                  rgba="0.6 0.6 0.6 1"/>
+                            <geom name="fr3_right_finger_coll" type="box" size="0.01 0.007 0.027" pos="0 -0.009 0.027"
+                                  group="3" rgba="0.55 0.55 0.55 1" condim="4" solimp="2 1 0.01" solref="0.01 1"
+                                  friction="5 0.1 0.001" contype="1" conaffinity="1"/>
                         </body>
                         <!-- 腕部相机 -->
                         <camera name="wrist" pos="0.06 0 0.08" fovy="45" mode="fixed" euler="0 0.6 0" />

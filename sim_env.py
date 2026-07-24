@@ -129,8 +129,8 @@ class PickPlaceTask(FR3Task):
             contact_pair = (name_geom_1, name_geom_2)
             all_contact_pairs.append(contact_pair)
 
-        touch_gripper = ("red_box", "fr3_left_finger") in all_contact_pairs or \
-                        ("red_box", "fr3_right_finger") in all_contact_pairs
+        touch_gripper = ("red_box", "fr3_left_finger_coll") in all_contact_pairs or \
+                        ("red_box", "fr3_right_finger_coll") in all_contact_pairs
         touch_table = ("red_box", "table") in all_contact_pairs
 
         # 方块当前位置

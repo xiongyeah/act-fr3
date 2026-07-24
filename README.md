@@ -62,7 +62,7 @@ Note: to visualize data from the mobile-aloha hardware, use the visualize_episod
 训练 ACT 策略：
 
     # FR3 Pick Place 任务
-    python3 imitate_episodes.py --task_name fr3_pick_place_scripted --ckpt_dir <ckpt dir> --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 --batch_size 8 --dim_feedforward 3200 --num_steps 2000 --lr 1e-5 --seed 0
+    python3 imitate_episodes.py --task_name fr3_pick_place_scripted --ckpt_dir <ckpt dir> --policy_class ACT --kl_weight 10 --chunk_size 100 --hidden_dim 512 --batch_size 8 --dim_feedforward 3200 --num_steps 5000 --lr 1e-5 --seed 0
 
 
 To evaluate the policy, run the same command but add ``--eval``. This loads the best validation checkpoint.

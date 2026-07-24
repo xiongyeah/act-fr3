@@ -28,9 +28,9 @@
         <position ctrllimited="true" ctrlrange="0.5445 4.5169" joint="fr3_joint6" kp="2000" kv="200" forcelimited="true" forcerange="-12 12"/>
         <position ctrllimited="true" ctrlrange="-3.0159 3.0159" joint="fr3_joint7" kp="2000" kv="200" forcelimited="true" forcerange="-12 12"/>
 
-        <!-- 两指夹爪 -->
-        <position ctrllimited="true" ctrlrange="0.0 0.025"  joint="fr3_left_finger"  kp="800"/>
-        <position ctrllimited="true" ctrlrange="-0.025 0.0" joint="fr3_right_finger" kp="800"/>
+        <!-- Franka Hand 两指夹爪 (80mm total) -->
+        <position ctrllimited="true" ctrlrange="0.0 0.04"  joint="fr3_left_finger"  kp="800"/>
+        <position ctrllimited="true" ctrlrange="-0.04 0.0" joint="fr3_right_finger" kp="800"/>
     </actuator>
 
     <keyframe>

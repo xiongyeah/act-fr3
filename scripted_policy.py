@@ -73,7 +73,7 @@ class PickAndPlacePolicy(BasePolicy):
         # 最终抓取姿态 = yaw 旋转 × 向下姿态（手指跟随方块旋转）
         grasp_quat = (q_yaw * q_down).elements
 
-        grasp_offset = np.array([0, 0, -0.11])        # link7→手指body中心（世界坐标），fr3.xml pos_z=0.11
+        grasp_offset = np.array([0, 0, -0.2])       # link7→指尖: body_z(0.1654) + mesh_len(0.054)
 
 
         target_xyz = np.array([0.7, 0.2, 0.02])  # 目标位置
